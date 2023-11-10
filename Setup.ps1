@@ -2,7 +2,7 @@ try {
     if (!(Test-Path -Path ($ENV:USERPROFILE + "\Documents\Powershell"))) {
         New-Item -Path ($ENV:USERPROFILE + "\Documents\Powershell") -ItemType Directory
     }
-    Invoke-RestMethod https://github.com/kayceem/setup/raw/main/Microsoft.PowerShell_profile.ps1 -OutFile $PROFILE
+    Invoke-RestMethod https://github.com/kayceem/setup/raw/master/Microsoft.PowerShell_profile.ps1 -OutFile $PROFILE
     Write-Host "The profile @ [$PROFILE] has been created."
 }
 catch {
