@@ -732,8 +732,8 @@ $ENV:STARSHIP_CONFIG = "$HOME\.config\starship.toml"
 Invoke-Expression (&starship init powershell)
 
 #######################    Setup    ######################
-# Set-PSReadLineOption -PredictionViewStyle ListView
-# Clear-History
+Set-PSReadLineOption -PredictionViewStyle ListView
+Clear-History
 
 ######################    Imports    #####################
-# Import-Module Terminal-Icons
+Import-Module Terminal-Icons
