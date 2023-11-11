@@ -417,10 +417,22 @@ function Get-Processes {
         Write-Host "No processes found."
         return
     }
+    $processes = Get-Process -ErrorAction SilentlyContinue
+    $found = $false
+    foreach ($process in $processes) {
+        try {
+            if ($process.Mainmodule.FileVersionInfo.FileDescription -match $name) {
+                $process
+                $found = $true
+            }
+        }
+        catch {
+            continue
+        }
+    }
 
-    Get-Process -Name $name -ErrorAction SilentlyContinue
-    if (-not $?) {
-        Write-Host "No processes found."
+    if (-not $found) {
+        Write-Host "No processes found with the given description."
     }
 }
 Set-Alias -Name pgrep -Value Get-Processes
@@ -637,7 +649,7 @@ function Get-Repos {
     $headers = @{
         "Authorization" = "Token $token"
     }
-    $response = Invoke-WebRequest -Method Get -Uri "https://api.github.com/user/repos?visibility=all" -Headers $headers
+    $response = Invoke-WebRequest -Method Get -Uri "https://api.github.com/user/repos?per_page=100" -Headers $headers
     $repos = $response.Content | ConvertFrom-Json
 
     # Display the repository names
@@ -720,8 +732,8 @@ $ENV:STARSHIP_CONFIG = "$HOME\.config\starship.toml"
 Invoke-Expression (&starship init powershell)
 
 #######################    Setup    ######################
-Set-PSReadLineOption -PredictionViewStyle ListView
-Clear-History
+# Set-PSReadLineOption -PredictionViewStyle ListView
+# Clear-History
 
 ######################    Imports    #####################
 # Import-Module Terminal-Icons
