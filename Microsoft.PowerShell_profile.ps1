@@ -2,6 +2,14 @@
 ####################    Powershell    ####################
 ##########################################################
 
+# Navigate forward and backward history
+function n {
+    cdX + -ErrorAction SilentlyContinue
+}
+function b {
+    cdX - -ErrorAction SilentlyContinue
+}
+
 # Clear History from powershell
 function Clear-History {
     try {
@@ -736,4 +744,4 @@ Set-PSReadLineOption -PredictionViewStyle ListView
 Clear-History
 
 ######################    Imports    #####################
-Import-Module Terminal-Icons
+# Import-Module Terminal-Icons
