@@ -1,7 +1,63 @@
 ##########################################################
 ####################    Powershell    ####################
 ##########################################################
+# Initialize a Python Project
+function Python-Initialize {
+    param(
+        [switch]$g 
+    )
 
+    # Check if Python is installed
+    if (-not (Get-Command python -ErrorAction SilentlyContinue)) {
+        Write-Host "Python is not installed. Please install Python to continue." -ForegroundColor Red
+        exit
+    }
+    Write-Host "Creating Python virtual environment..." -ForegroundColor Green
+    if (-not (Get-Command virtualenv -ErrorAction SilentlyContinue)) {
+        python -m venv .venv
+    }
+    else {
+        virtualenv .venv
+    }
+
+    Write-Host "Activating virtual environment..." -ForegroundColor Green
+    & .\.venv\Scripts\activate.ps1
+
+    Write-Host "Creating requirements.txt file..." -ForegroundColor Green
+    New-Item -ItemType File -Path "requirements.txt" -Force
+    
+    Write-Host "Creating main.py file..." -ForegroundColor Green
+    New-Item -ItemType File -Path "main.py" -Force
+
+    Write-Host "Creating requirements.txt file..." -ForegroundColor Green
+    $gitignoreContent = @"
+__pycache__/
+.venv/
+"@
+    Set-Content -Path ".gitignore" -Value $gitignoreContent
+
+    if ($g) {
+        if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
+            Write-Host "Git is not installed. Please install Git to initialize the repository." -ForegroundColor Red
+        }
+        else {
+            Write-Host "Initializing Git repository..." -ForegroundColor Green
+            git init
+            git add .
+            git commit -m "init"
+            Write-Host "Git repository initialized." -ForegroundColor Green
+        }
+    } 
+    
+}
+Set-Alias -Name pyinit -Value Python-Initialize
+
+# Open Edge in Profile 3
+function e3 {
+    $edgePath = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
+    $urls = "https://discord.com/channels/@me https://mail.google.com/mail/u/0/#inbox"
+    Start-Process -FilePath $edgePath  -ArgumentList "--profile-directory=`"Profile 3`" $urls" 
+}
 # Navigate forward and backward history
 function n {
     cdX + -ErrorAction SilentlyContinue
@@ -31,7 +87,11 @@ function grep {
     param(
         $regex
     )
-    $input | select-string $regex
+    process {
+        $_ | Select-String -Pattern $regex | ForEach-Object {
+            $_.Line
+        }
+    }
 }
 
 # Exit powershell
@@ -363,6 +423,30 @@ Set-Alias -Name vlcr -Value Restore-VLC-Player
 ####################    Start/Stop    ####################
 ##########################################################
 
+# Stop Apple Mobile Device Service
+function Stop-Apple-Service {
+    try {
+        net stop "Apple Mobile Device Service"
+        Write-Host "Apple Mobile Device Service"
+    }
+    catch {
+        Write-Host "Could not stop Apple Mobile Device Service."
+    }
+}
+Set-Alias -Name iop -Value Stop-Apple-Service
+
+# Start Apple Mobile Device Service
+function Start-Apple-Service {
+    try {
+        net start "Apple Mobile Device Service"
+        Write-Host "Apple Mobile Device Service running..."
+    }
+    catch {
+        Write-Host "Could not start Apple Mobile Device Service."
+    }
+}
+Set-Alias -Name ios -Value Start-Apple-Service
+
 # Stop Nord
 function Stop-Nord-VPN {
     try {
@@ -663,11 +747,14 @@ function Get-Repos {
     # Display the repository names
     Write-Host ""
     $i = 1
+    $outputString = ""
+
     $repos | ForEach-Object {
-        Write-Host "$i." $_.name
-        Write-Host "                        Private: " $_.private
+        $outputString += "$i. $($_.name)`n"
+        $outputString += "`t`t`tPrivate: $($_.private)`n"
         $i++
     }
+    Write-Host $outputString
 }
 Set-Alias -Name getrepo -Value Get-Repos
 
